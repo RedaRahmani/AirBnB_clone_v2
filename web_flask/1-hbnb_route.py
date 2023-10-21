@@ -7,6 +7,10 @@ app = Flask(__name__)
 def Hello():
     """ hello documentation """
     return "Hello HBNB!"
+@app.route('/hbnb', strict_slashes=False)
+def hbnb():
+    """ hbnb documentation """
+    return "HBNB"
 
 if __name__ == '__main__':
     app.run(port=5000)
