@@ -32,11 +32,12 @@ def number_template(n):
     return render_template('5-number.html', number=n)
 @app.route('/number_odd_or_even/<n>', strict_slashes=False)
 def number_odd_or_even(n):
+    """even or odd docs"""
     if n%2==0:
         even_or_odd = 'even'
     else:
         even_or_odd = 'odd'
-    return render_template('6-number_odd_or_even.html', number=n, even_or_odd=even_or_odd) 
+    return render_template('6-number_odd_or_even.html', number=n, p=even_or_odd) 
 
 if __name__ == '__main__':
     app.run(port=5000)
