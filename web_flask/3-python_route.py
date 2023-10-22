@@ -17,6 +17,12 @@ def c(text):
     formatted_text = text.replace('_', ' ')
     response_text = f'C {formatted_text}'
     return response_text
+@app.route('/python/<text>', strict_slashes=False)
+def python(text="is cool"):
+    """ python documentation """
+    formatted_text = text.replace('_', ' ')
+    response_text = f'python {formatted_text}'
+    return response_text
 
 if __name__ == '__main__':
     app.run(port=5000)
