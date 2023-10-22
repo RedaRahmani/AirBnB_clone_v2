@@ -30,7 +30,7 @@ def number(n):
 @app.route('/number_template/<n>', strict_slashes=False)
 def number_template(n):
     """ python doc """
-    return render_template('5-number.html', n=n)
+    return render_template('5-number.html', number=n)
 
 if __name__ == '__main__':
     app.run(port=5000)
