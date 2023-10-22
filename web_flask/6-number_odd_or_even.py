@@ -33,7 +33,7 @@ def number_template(n):
 @app.route('/number_odd_or_even/<n>', strict_slashes=False)
 def number_odd_or_even(n):
     """even or odd docs"""
-    if n%2==0:
+    if n % 2 == 0:
         even_or_odd = 'even'
     else:
         even_or_odd = 'odd'
