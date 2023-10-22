@@ -28,7 +28,7 @@ def number(n):
     """ c documentation """
     return f'{n} is a number'
 @app.route('/number_template/<n>', strict_slashes=False)
-def python(n):
+def number_template(n):
     """ python doc """
     return render_template('5-number.html', n=n)
 
