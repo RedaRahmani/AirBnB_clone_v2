@@ -20,10 +20,8 @@ def c(text):
 @app.route('/python', defaults={'text': 'is cool'}, strict_slashes=False)
 @app.route('/python/<text>', strict_slashes=False)
 def python(text):
-    """ python documentation """
-    formatted_text = text.replace('_', ' ')
-    response_text = f'python {formatted_text}'
-    return response_text
+    """ python doc """
+    return 'Python {}'.format(text.replace("_", " "))
 
 if __name__ == '__main__':
     app.run(port=5000)
