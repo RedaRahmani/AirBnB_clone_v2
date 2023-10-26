@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """ Module documents """
 from flask import Flask
 from flask import render_template
