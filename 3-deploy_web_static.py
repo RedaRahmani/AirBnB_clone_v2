@@ -1,90 +1,61 @@
 #!/usr/bin/python3
+""" module doc
 """
-Uses fabric to
-deploy files to a server
-"""
-
-
-from fabric.api import env, run, put, local
+from fabric.api import task, local, env, put, run, runs_once
 from datetime import datetime
 import os
 
+env.hosts = ['18.207.1.87', '52.206.189.175']
 
-env.hosts = ['35.174.211.15', '100.25.199.94']
 
-
+@runs_once
 def do_pack():
-    """ Create directory and compress file
-        as a given name
+    """ method doc
+        sudo fab -f 1-pack_web_static.py do_pack
     """
-    time_test = datetime.now().strftime("%Y%m%d%H%M%S")
-    file_name = "versions/web_static_" + time_test + ".tgz"
-    command1 = "mkdir -p versions"
-    command2 = "tar -czvf " + file_name + " web_static"
-    local(command1)
-    com = local(command2)
-    if com.return_code == 0:
-        return file_name
-    else:
-        return None
+    formatted_dt = datetime.now().strftime('%Y%m%d%H%M%S')
+    mkdir = "mkdir -p versions"
+    path = "versions/web_static_{}.tgz".format(formatted_dt)
+    print("Packing web_static to {}".format(path))
+    if local("{} && tar -cvzf {} web_static".format(mkdir, path)).succeeded:
+        return path
+    return None
 
 
+@task
 def do_deploy(archive_path):
-    """ This function takes the path of the archive
-        and uploads it to the servers
+    """ method doc
+        fab -f 2-do_deploy_web_static.py do_deploy:
+        archive_path=versions/web_static_20231004201306.tgz
+        -i ~/.ssh/id_rsa -u ubuntu
     """
-    if not os.path.exists(archive_path):
+    try:
+        if not os.path.exists(archive_path):
+            return False
+        fn_with_ext = os.path.basename(archive_path)
+        fn_no_ext, ext = os.path.splitext(fn_with_ext)
+        dpath = "/data/web_static/releases/"
+        put(archive_path, "/tmp/")
+        run("rm -rf {}{}/".format(dpath, fn_no_ext))
+        run("mkdir -p {}{}/".format(dpath, fn_no_ext))
+        run("tar -xzf /tmp/{} -C {}{}/".format(fn_with_ext, dpath, fn_no_ext))
+        run("rm /tmp/{}".format(fn_with_ext))
+        run("mv {0}{1}/web_static/* {0}{1}/".format(dpath, fn_no_ext))
+        run("rm -rf {}{}/web_static".format(dpath, fn_no_ext))
+        run("rm -rf /data/web_static/current")
+        run("ln -s {}{}/ /data/web_static/current".format(dpath, fn_no_ext))
+        print("New version deployed!")
+        return True
+    except Exception:
         return False
 
-    file_ext = archive_path[archive_path.find('/') + 1:]
-    file_name = archive_path[archive_path.find('/') + 1: -4]
 
-    result = put(archive_path, '/tmp/' + file_ext)
-    if result.failed:
-        return False
-
-    result = run('mkdir -p /data/web_static/releases/' + file_name + '/')
-    if result.failed:
-        return False
-
-    result = run('tar -xzf /tmp/' + file_ext +
-                 ' -C /data/web_static/releases/' + file_name + '/')
-    if result.failed:
-        return False
-
-    result = run('rm /tmp/' + file_ext)
-    if result.failed:
-        return False
-
-    result = run('mv /data/web_static/releases/' + file_name +
-                 '/web_static/* /data/web_static/releases/' + file_name + '/')
-    if result.failed:
-        return False
-
-    result = run('rm -rf /data/web_static/releases/' + file_name +
-                 '/web_static')
-    if result.failed:
-        return False
-
-    result = run('rm -rf /data/web_static/current')
-    if result.failed:
-        return False
-
-    result = run('ln -s /data/web_static/releases/' +
-                 file_name + '/ /data/web_static/current')
-    if result.failed:
-        return False
-
-    print('New version deployed!')
-    return True
-
-
+@task
 def deploy():
-    """ This function deploys a web to a server
+    """ method doc
+        sudo fab -f 1-pack_web_static.py do_pack
     """
-    archive_path = do_pack()
-    if archive_path is False:
-        return false
-
-    deploy_return = do_deploy(archive_path)
-    return deploy_return
+    path = do_pack()
+    if path is None:
+        return False
+    return do_deploy(path)
